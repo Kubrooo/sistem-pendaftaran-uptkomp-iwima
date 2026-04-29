@@ -3,11 +3,13 @@
 Monorepo fullstack untuk pendaftaran anggota UPT Lab Komputer IWIMA.
 
 Stack utama
+
 - Frontend: React + Vite + TailwindCSS
 - Backend: Node.js (Express) + Prisma + MySQL
 - Auth: JWT; password hashing dengan bcryptjs
 
 Fitur singkat
+
 - Form pendaftaran user + upload PDF
 - Pembuatan akun otomatis untuk pendaftar
 - Login applicant dan pemeriksaan status pendaftaran
@@ -23,13 +25,14 @@ Repository layout
   README.md
 ```
 
-Quickstart (pengembangan)
+Getting started (development)
 
-Prereqs
-- Node.js v18+ atau 20+ dan npm
-- MySQL (XAMPP atau server lain)
+Prerequisites
 
-1) Clone
+- Node.js v18+ and npm (or compatible)
+- MySQL server (XAMPP is supported)
+
+Clone and install
 
 ```bash
 git clone https://github.com/Kubrooo/sistem-pendaftaran-uptkomp-iwima.git
@@ -37,77 +40,89 @@ cd "Sistem Pendaftaran UPT"
 npm install
 ```
 
-2) Database
-- Jika kamu pakai XAMPP: pastikan MySQL berjalan dan buat database, contoh:
+Database (XAMPP example)
 
 ```powershell
 & 'D:\xampp\mysql\bin\mysql.exe' -u root -e "CREATE DATABASE IF NOT EXISTS upt_lab_iwima;"
 ```
 
-3) Environment
-- Copy example dan sesuaikan `server/.env` (atau set env vars):
+Environment
+
+Copy the example env and edit values in `server/.env` (or set the variables in your shell):
 
 ```powershell
 Copy-Item server\.env.example server\.env
 notepad server\.env
-# ubah DATABASE_URL ke mysql://root:@127.0.0.1:3306/upt_lab_iwima (atau sesuai credentialmu)
+# typically set DATABASE_URL to: mysql://root:@127.0.0.1:3306/upt_lab_iwima
 ```
 
-4) Prisma (migrate, generate, seed)
+Common environment variables (server/.env)
+
+- `DATABASE_URL` — Prisma connection string for MySQL
+- `JWT_SECRET` — random secret for signing tokens
+- `PORT` — server port (default 4000)
+- `UPLOAD_DIR` — directory for uploaded files
+- `DEFAULT_ADMIN_EMAIL` / `DEFAULT_ADMIN_PASSWORD` — used by seed script
+
+Prisma & seed
 
 ```bash
 cd server
 npx prisma generate
-npx prisma migrate dev
+npx prisma migrate dev --name init
 npm run prisma:seed
 ```
 
-5) Jalankan server dan client
+Run the app
 
 ```bash
-# dari root (workspaces)
+# start server and client in separate terminals
 npm run dev --workspace server
 npm run dev --workspace client
 ```
 
-API ringkas
-- `POST /api/register` — register applicant (form + file)
-- `POST /api/login` — login applicant
-- `GET /api/me` — current user info (auth)
-- `GET /api/my-status` — cek status pendaftaran
-- `POST /api/admin/login` — login admin
-- `GET /api/admin/applicants` — list untuk admin
+API basics
 
-Docs
-- Lihat `/docs` untuk dokumentasi API dan arsitektur.
+All endpoints are prefixed with `/api`. Use `Authorization: Bearer <token>` for protected endpoints.
+
+Examples (cURL)
+
+Register (multipart/form-data):
+
+```bash
+curl -X POST http://localhost:4000/api/register \
+  -F "name=Nama Lengkap" \
+  -F "nim=12345678" \
+  -F "email=example@example.com" \
+  -F "file=@./dokumen.pdf"
+```
+
+Login (JSON):
+
+```bash
+curl -X POST http://localhost:4000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"nim":"12345678","password":"yourPassword"}'
+```
+
+Admin login example:
+
+```bash
+curl -X POST http://localhost:4000/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@iwima.ac.id","password":"Admin12345!"}'
+```
+
+More docs
+
+See the `docs/` folder for API details, architecture notes, and contributing guidelines.
 
 Contributing
-- Buka issue atau fork, buat branch fitur `feat/<nama>` dan PR.
+
+- Open an issue first for large changes.
+- Create a feature branch named `feat/<short-description>` or `fix/<issue-number>`.
+- Add tests or manual verification steps for non-trivial changes.
 
 License
-- MIT
-# Sistem Pendaftaran Anggota UPT Lab Komputer IWIMA
 
-Fullstack scaffold untuk sistem pendaftaran anggota dengan React + Vite, Express.js, MySQL, Prisma ORM, JWT, dan Multer.
-
-## Struktur
-
-- `client/` untuk frontend React
-- `server/` untuk backend Express dan Prisma
-- `server/prisma/schema.prisma` untuk database schema
-
-## Fitur inti yang disiapkan
-
-- Registrasi pendaftar dengan upload PDF
-- Login applicant memakai NIM dan password
-- Login admin berbasis JWT
-- Dashboard status dan catatan admin
-- CRUD, verifikasi status, dan activity log
-
-## Langkah lanjut
-
-1. Install dependency di `client` dan `server`.
-2. Buat database MySQL sesuai `DATABASE_URL`.
-3. Jalankan Prisma migrate dan generate client.
-4. Jalankan seed admin awal dengan `npm run prisma:seed --workspace server`.
-5. Jalankan `npm run dev` dari root.
+MIT — see `LICENSE` file.
