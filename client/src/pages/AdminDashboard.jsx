@@ -7,6 +7,7 @@ export default function AdminDashboard() {
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10 });
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
+  const [notes, setNotes] = useState({});
 
   const load = async () => {
     try {
@@ -17,6 +18,11 @@ export default function AdminDashboard() {
       setItems(response.data.data);
       setMeta(response.data.meta);
       setStatus("");
+      const map = {};
+      response.data.data.forEach((i) => {
+        map[i.id] = i.applicant?.catatanAdmin || "";
+      });
+      setNotes(map);
     } catch (error) {
       setStatus(error.response?.data?.message || "Gagal memuat data");
     }
@@ -27,13 +33,25 @@ export default function AdminDashboard() {
   }, []);
 
   const updateStatus = async (id, nextStatus) => {
+    const actionTitle =
+      nextStatus === "accepted" ? "Terima pendaftar" : "Tolak pendaftar";
+    const result = await Swal.fire({
+      title: `Konfirmasi: ${actionTitle}`,
+      text: `Anda yakin ingin mengubah status pendaftar menjadi ${nextStatus}?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Ya",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await api.put(`/admin/applicants/${id}`, { status: nextStatus });
       await Swal.fire({
-        title: "Status diperbarui",
-        text: `Status pendaftar diubah menjadi ${nextStatus}.`,
         icon: "success",
-        timer: 1800,
+        title: "Status diperbarui",
+        timer: 1400,
         showConfirmButton: false,
       });
       load();
@@ -46,8 +64,9 @@ export default function AdminDashboard() {
     }
   };
 
-  const saveNote = async (id, note) => {
+  const saveNote = async (id) => {
     try {
+      const note = notes[id] ?? "";
       await api.put(`/admin/applicants/${id}`, { catatanAdmin: note });
       Swal.fire({
         icon: "success",
@@ -142,21 +161,20 @@ export default function AdminDashboard() {
 
                       <div className="mt-2 flex items-start gap-2">
                         <textarea
-                          defaultValue={item.applicant?.catatanAdmin || ""}
+                          value={notes[item.id] ?? ""}
+                          onChange={(e) =>
+                            setNotes((s) => ({
+                              ...s,
+                              [item.id]: e.target.value,
+                            }))
+                          }
                           placeholder="Tambahkan catatan admin..."
                           className="input h-20 w-full resize-none"
-                          id={`note-${item.id}`}
                         />
                         <div className="flex flex-col gap-2">
                           <button
                             className="button-primary"
-                            onClick={() =>
-                              saveNote(
-                                item.id,
-                                document.getElementById(`note-${item.id}`)
-                                  .value,
-                              )
-                            }
+                            onClick={() => saveNote(item.id)}
                           >
                             Simpan Catatan
                           </button>
