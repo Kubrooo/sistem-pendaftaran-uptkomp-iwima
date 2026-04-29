@@ -12,32 +12,56 @@ export const registerApplicant = async (req, res, next) => {
         .json({ message: "Data pendaftaran belum lengkap" });
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { nim } });
-    if (existingUser) {
-      return res.status(409).json({ message: "NIM sudah terdaftar" });
-    }
-
-    const password = await hashPassword(nim);
-
-    const user = await prisma.user.create({
-      data: {
-        nim,
-        nama,
-        password,
-        role: "applicant",
-        applicant: {
-          create: {
-            motivasi,
-            filePdf: req.file.filename,
-            status: "pending",
-          },
-        },
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { nim },
       include: { applicant: true },
     });
 
+    const password = await hashPassword(nim);
+
+    const user = existingUser
+      ? existingUser.applicant?.deletedAt
+        ? await prisma.user.update({
+            where: { id: existingUser.id },
+            data: {
+              nama,
+              password,
+              applicant: {
+                update: {
+                  motivasi,
+                  filePdf: req.file.filename,
+                  status: "pending",
+                  deletedAt: null,
+                  catatanAdmin: null,
+                },
+              },
+            },
+            include: { applicant: true },
+          })
+        : null
+      : await prisma.user.create({
+          data: {
+            nim,
+            nama,
+            password,
+            role: "applicant",
+            applicant: {
+              create: {
+                motivasi,
+                filePdf: req.file.filename,
+                status: "pending",
+              },
+            },
+          },
+          include: { applicant: true },
+        });
+
+    if (!user) {
+      return res.status(409).json({ message: "NIM sudah terdaftar" });
+    }
+
     return res.status(201).json({
-      message: "Pendaftaran berhasil",
+      message: existingUser ? "Pendaftaran diperbarui" : "Pendaftaran berhasil",
       data: {
         id: user.id,
         nim: user.nim,
