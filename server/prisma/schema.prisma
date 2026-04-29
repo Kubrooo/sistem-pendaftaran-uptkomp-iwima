@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  applicant
+}
+
+enum ApplicantStatus {
+  pending
+  accepted
+  rejected
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  nim       String    @unique
+  nama      String
+  password  String
+  role      Role      @default(applicant)
+  applicant Applicant?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Applicant {
+  id            Int             @id @default(autoincrement())
+  userId        Int             @unique @map("user_id")
+  motivasi      String          @db.Text
+  filePdf       String          @map("file_pdf")
+  status        ApplicantStatus @default(pending)
+  catatanAdmin  String?         @db.Text @map("catatan_admin")
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt @map("updated_at")
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("applicants")
+}
+
+model ActivityLog {
+  id          Int      @id @default(autoincrement())
+  adminId     Int      @map("admin_id")
+  action      String
+  description String   @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  admin       Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("activity_logs")
+}
+
+model Admin {
+  id          Int           @id @default(autoincrement())
+  name        String
+  email       String        @unique
+  password    String
+  createdAt   DateTime      @default(now()) @map("created_at")
+  activityLogs ActivityLog[]
+
+  @@map("admins")
+}
