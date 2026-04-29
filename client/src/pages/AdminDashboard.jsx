@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [notes, setNotes] = useState({});
+  const [openNotes, setOpenNotes] = useState({});
 
   const load = async () => {
     try {
@@ -192,42 +193,56 @@ export default function AdminDashboard() {
                             Lihat Dokumen
                           </a>
                         ) : null}
-                      </div>
-
-                      <div className="mt-2 flex items-start gap-2">
-                        <textarea
-                          value={notes[item.id] ?? ""}
-                          onChange={(e) =>
-                            setNotes((s) => ({
-                              ...s,
-                              [item.id]: e.target.value,
+                        <button
+                          className="button-secondary"
+                          onClick={() =>
+                            setOpenNotes((current) => ({
+                              ...current,
+                              [item.id]: !current[item.id],
                             }))
                           }
-                          placeholder="Tambahkan catatan admin..."
-                          className="input h-20 w-full resize-none"
-                        />
-                        <div className="flex flex-col gap-2">
-                          <button
-                            className="button-primary"
-                            onClick={() => saveNote(item.id)}
-                          >
-                            Simpan Catatan
-                          </button>
-                          {item.applicant?.status === "accepted" ? (
-                            <a
-                              className="button-secondary"
-                              href={
-                                import.meta.env.VITE_WHATSAPP_GROUP ||
-                                "https://chat.whatsapp.com/your-group-link"
-                              }
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Link Grup WA
-                            </a>
-                          ) : null}
-                        </div>
+                        >
+                          {openNotes[item.id] ? "Tutup Catatan" : "Catatan"}
+                        </button>
                       </div>
+
+                      {openNotes[item.id] ? (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            Catatan Admin
+                          </p>
+                          <textarea
+                            value={notes[item.id] ?? ""}
+                            onChange={(e) =>
+                              setNotes((s) => ({
+                                ...s,
+                                [item.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="Tambahkan catatan admin..."
+                            className="input mt-3 min-h-24 w-full resize-none"
+                          />
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <button
+                              className="button-primary"
+                              onClick={() => saveNote(item.id)}
+                            >
+                              Simpan Catatan
+                            </button>
+                            <button
+                              className="button-secondary"
+                              onClick={() =>
+                                setOpenNotes((current) => ({
+                                  ...current,
+                                  [item.id]: false,
+                                }))
+                              }
+                            >
+                              Sembunyikan
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

@@ -41,9 +41,22 @@ export default function DashboardApplicant() {
               <span className="font-semibold">Status:</span> {applicant.status}
             </div>
             <div>
-              <span className="font-semibold">Catatan Admin:</span>{" "}
-              {applicant.catatanAdmin || "-"}
+              <span className="font-semibold">Catatan Admin:</span>
+              {applicant.catatanAdmin ? applicant.catatanAdmin : "-"}
             </div>
+            {applicant.status === "accepted" ? (
+              <a
+                className="button-primary justify-self-start"
+                href={
+                  import.meta.env.VITE_WHATSAPP_GROUP ||
+                  "https://chat.whatsapp.com/your-group-link"
+                }
+                target="_blank"
+                rel="noreferrer"
+              >
+                Gabung Grup WA
+              </a>
+            ) : null}
           </div>
         ) : null}
         <div className="mt-6">
