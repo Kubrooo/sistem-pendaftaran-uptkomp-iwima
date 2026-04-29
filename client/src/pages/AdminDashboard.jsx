@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../lib/api";
+import Swal from "sweetalert2";
 
 export default function AdminDashboard() {
   const [items, setItems] = useState([]);
@@ -26,8 +27,42 @@ export default function AdminDashboard() {
   }, []);
 
   const updateStatus = async (id, nextStatus) => {
-    await api.put(`/admin/applicants/${id}`, { status: nextStatus });
-    load();
+    try {
+      await api.put(`/admin/applicants/${id}`, { status: nextStatus });
+      await Swal.fire({
+        title: "Status diperbarui",
+        text: `Status pendaftar diubah menjadi ${nextStatus}.`,
+        icon: "success",
+        timer: 1800,
+        showConfirmButton: false,
+      });
+      load();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: error.response?.data?.message || "Terjadi kesalahan",
+      });
+    }
+  };
+
+  const saveNote = async (id, note) => {
+    try {
+      await api.put(`/admin/applicants/${id}`, { catatanAdmin: note });
+      Swal.fire({
+        icon: "success",
+        title: "Catatan tersimpan",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+      load();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal",
+        text: error.response?.data?.message || "Terjadi kesalahan",
+      });
+    }
   };
 
   return (
@@ -72,19 +107,74 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3">{item.nama}</td>
                   <td className="px-4 py-3">{item.applicant?.status || "-"}</td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        className="button-secondary"
-                        onClick={() => updateStatus(item.id, "accepted")}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        className="button-secondary"
-                        onClick={() => updateStatus(item.id, "rejected")}
-                      >
-                        Reject
-                      </button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <button
+                          className="button-secondary"
+                          onClick={() => updateStatus(item.id, "accepted")}
+                        >
+                          Accept
+                        </button>
+                        <button
+                          className="button-secondary"
+                          onClick={() => updateStatus(item.id, "rejected")}
+                        >
+                          Reject
+                        </button>
+                        {item.applicant?.filePdf ? (
+                          <a
+                            className="button-secondary"
+                            href={
+                              (
+                                import.meta.env.VITE_API_URL ||
+                                "http://localhost:4000/api"
+                              ).replace(/\/api$/, "") +
+                              "/uploads/" +
+                              item.applicant.filePdf
+                            }
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Lihat Dokumen
+                          </a>
+                        ) : null}
+                      </div>
+
+                      <div className="mt-2 flex items-start gap-2">
+                        <textarea
+                          defaultValue={item.applicant?.catatanAdmin || ""}
+                          placeholder="Tambahkan catatan admin..."
+                          className="input h-20 w-full resize-none"
+                          id={`note-${item.id}`}
+                        />
+                        <div className="flex flex-col gap-2">
+                          <button
+                            className="button-primary"
+                            onClick={() =>
+                              saveNote(
+                                item.id,
+                                document.getElementById(`note-${item.id}`)
+                                  .value,
+                              )
+                            }
+                          >
+                            Simpan Catatan
+                          </button>
+                          {item.applicant?.status === "accepted" ? (
+                            <a
+                              className="button-secondary"
+                              href={
+                                import.meta.env.VITE_WHATSAPP_GROUP ||
+                                "https://chat.whatsapp.com/your-group-link"
+                              }
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Link Grup WA
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
                     </div>
                   </td>
                 </tr>

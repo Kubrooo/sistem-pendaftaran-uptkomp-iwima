@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
+import Swal from "sweetalert2";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -14,6 +15,13 @@ export default function AdminLogin() {
       const response = await api.post("/admin/login", form);
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("role", "admin");
+      await Swal.fire({
+        title: "Login berhasil",
+        text: "Selamat datang, Admin. Kamu akan diarahkan ke dashboard.\nTips: gunakan menu 'Admin' di header untuk menavigasi.",
+        icon: "success",
+        confirmButtonText: "Buka Dashboard",
+      });
+
       navigate("/admin");
     } catch (error) {
       setStatus(error.response?.data?.message || "Login admin gagal");
