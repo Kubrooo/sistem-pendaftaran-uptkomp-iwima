@@ -17,6 +17,8 @@ export const listApplicants = async (req, res, next) => {
             }
           : {},
         status ? { applicant: { status } } : {},
+        // exclude soft-deleted applicants
+        { applicant: { deletedAt: null } },
       ],
     };
 
@@ -72,6 +74,36 @@ export const updateApplicant = async (req, res, next) => {
       message: "Data pendaftar berhasil diperbarui",
       applicant: updated,
     });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const softDeleteApplicant = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      include: { applicant: true },
+    });
+
+    if (!user?.applicant) {
+      return res.status(404).json({ message: "Pendaftar tidak ditemukan" });
+    }
+
+    await prisma.applicant.update({
+      where: { userId: user.id },
+      data: { deletedAt: new Date() },
+    });
+
+    await createActivityLog({
+      adminId: req.user.id,
+      action: "soft_delete_applicant",
+      description: `Soft delete pendaftar ${user.nim}`,
+    });
+
+    return res.json({ message: "Pendaftar berhasil dihapus (soft delete)" });
   } catch (error) {
     return next(error);
   }

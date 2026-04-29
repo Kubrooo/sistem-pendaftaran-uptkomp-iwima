@@ -140,6 +140,41 @@ export default function AdminDashboard() {
                         >
                           Reject
                         </button>
+                        <button
+                          className="button-ghost text-rose-600"
+                          onClick={async () => {
+                            const confirm = await Swal.fire({
+                              title: "Hapus pendaftar",
+                              text: "Aksi ini akan menghapus pendaftar (soft delete). Lanjutkan?",
+                              icon: "warning",
+                              showCancelButton: true,
+                              confirmButtonText: "Hapus",
+                            });
+
+                            if (!confirm.isConfirmed) return;
+
+                            try {
+                              await api.delete(`/admin/applicants/${item.id}`);
+                              Swal.fire({
+                                icon: "success",
+                                title: "Dihapus",
+                                timer: 1200,
+                                showConfirmButton: false,
+                              });
+                              load();
+                            } catch (err) {
+                              Swal.fire({
+                                icon: "error",
+                                title: "Gagal",
+                                text:
+                                  err.response?.data?.message ||
+                                  "Terjadi kesalahan",
+                              });
+                            }
+                          }}
+                        >
+                          Hapus
+                        </button>
                         {item.applicant?.filePdf ? (
                           <a
                             className="button-secondary"
