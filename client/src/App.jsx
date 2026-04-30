@@ -1,5 +1,6 @@
 import { Link, NavLink, Route, Routes, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import logo from "./assets/Logo UPT/Logo UPT.png";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardApplicant from "./pages/DashboardApplicant";
@@ -24,7 +25,9 @@ function HomeHero() {
               Siap Mengembangkan Potensimu Bersama Kami?
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-              Ayo asah skill IT kamu dan dapatkan pengalaman berharga! Segera daftarkan dirimu, unggah berkas persyaratan, dan pantau terus status seleksimu dengan mudah melalui portal ini.
+              Ayo asah skill IT kamu dan dapatkan pengalaman berharga! Segera
+              daftarkan dirimu, unggah berkas persyaratan, dan pantau terus
+              status seleksimu dengan mudah melalui portal ini.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link to="/register" className="button-primary">
@@ -35,15 +38,27 @@ function HomeHero() {
               </Link>
               {/* Tombol admin disembunyikan dari visual utama pendaftar, 
                   tapi kalau masih mau dimunculin bisa pakai teks yang lebih subtle */}
-              <Link to="/admin/login" className="text-sm font-medium text-slate-400 hover:text-slate-600 self-center ml-4">
+              <Link
+                to="/admin/login"
+                className="text-sm font-medium text-slate-400 hover:text-slate-600 self-center ml-4"
+              >
                 Login Admin
               </Link>
             </div>
             <div className="mt-10 grid gap-3 sm:grid-cols-3">
               {[
-                ["Akses Praktis", "Login mudah langsung menggunakan NIM kamu setelah mendaftar."],
-                ["Pantau Real-time", "Cek status seleksi (Pending, Lolos, atau Gagal) kapan saja."],
-                ["Transparan", "Dapatkan informasi dan catatan langsung dari panitia seleksi."],
+                [
+                  "Akses Praktis",
+                  "Login mudah langsung menggunakan NIM kamu setelah mendaftar.",
+                ],
+                [
+                  "Pantau Real-time",
+                  "Cek status seleksi (Pending, Lolos, atau Gagal) kapan saja.",
+                ],
+                [
+                  "Transparan",
+                  "Dapatkan informasi dan catatan langsung dari panitia seleksi.",
+                ],
               ].map(([title, text]) => (
                 <div
                   key={title}
@@ -62,10 +77,22 @@ function HomeHero() {
                 Alur Pendaftaran
               </p>
               <ol className="mt-4 space-y-4 text-sm leading-6 text-slate-100">
-                <li>1. <strong>Isi Formulir:</strong> Lengkapi data diri dan unggah berkas persyaratan (PDF).</li>
-                <li>2. <strong>Akun Otomatis:</strong> Akun portalmu akan langsung aktif setelah berhasil mendaftar.</li>
-                <li>3. <strong>Pantau Status:</strong> Login menggunakan NIM secara berkala untuk mengecek pengumuman.</li>
-                <li>4. <strong>Hasil Seleksi:</strong> Tunggu hasil verifikasi dan instruksi selanjutnya dari panitia.</li>
+                <li>
+                  1. <strong>Isi Formulir:</strong> Lengkapi data diri dan
+                  unggah berkas persyaratan (PDF).
+                </li>
+                <li>
+                  2. <strong>Akun Otomatis:</strong> Akun portalmu akan langsung
+                  aktif setelah berhasil mendaftar.
+                </li>
+                <li>
+                  3. <strong>Pantau Status:</strong> Login menggunakan NIM
+                  secara berkala untuk mengecek pengumuman.
+                </li>
+                <li>
+                  4. <strong>Hasil Seleksi:</strong> Tunggu hasil verifikasi dan
+                  instruksi selanjutnya dari panitia.
+                </li>
               </ol>
             </div>
             <div className="mt-6 rounded-3xl bg-slate-50 p-6">
@@ -74,10 +101,12 @@ function HomeHero() {
               </p>
               <div className="mt-4 space-y-3 text-sm text-slate-700">
                 <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  Pastikan ukuran file PDF tidak melebihi batas maksimal sebelum diunggah.
+                  Pastikan ukuran file PDF tidak melebihi batas maksimal sebelum
+                  diunggah.
                 </div>
                 <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
-                  Gunakan data yang valid dan aktif agar mudah dihubungi oleh panitia.
+                  Gunakan data yang valid dan aktif agar mudah dihubungi oleh
+                  panitia.
                 </div>
                 <div className="rounded-2xl bg-white px-4 py-3 shadow-sm">
                   Jangan berikan akses login akunmu kepada siapapun.
@@ -105,11 +134,11 @@ function AppShell() {
     <div className="min-h-screen bg-sand text-ink">
       <header className="sticky top-0 z-20 border-b border-white/60 bg-sand/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <Link
-            to="/"
-            className="text-sm font-black uppercase tracking-[0.28em] text-ink"
-          >
-            UPT IWIMA
+          <Link to="/" className="flex items-center gap-3">
+            <img src={logo} alt="Logo UPT" className="h-10 w-auto" />
+            <span className="text-{lg} font-bold uppercase text-ink">
+              UPT LABOLATORIUM KOMPUTER IWIMA
+            </span>
           </Link>
           <nav className="hidden items-center gap-2 md:flex">
             <NavLink to="/register" className={shellLinkClass}>

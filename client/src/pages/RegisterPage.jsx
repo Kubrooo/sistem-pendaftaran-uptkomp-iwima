@@ -39,6 +39,24 @@ export default function RegisterPage() {
     setLoading(true);
     setStatus({ type: "", message: "" });
 
+    // Validasi field kosong
+    const emptyFields = [];
+    if (!form.nim.trim()) emptyFields.push("NIM");
+    if (!form.nama.trim()) emptyFields.push("Nama Lengkap");
+    if (!form.motivasi.trim()) emptyFields.push("Motivasi bergabung");
+    if (!files.file_transkip) emptyFields.push("PDF Transkrip Nilai");
+    if (!files.file_foto) emptyFields.push("Pas Foto (PDF)");
+    if (!files.file_formulir) emptyFields.push("Formulir Pendaftaran (PDF)");
+
+    if (emptyFields.length > 0) {
+      setStatus({
+        type: "error",
+        message: `Field berikut harus diisi: ${emptyFields.join(", ")}`,
+      });
+      setLoading(false);
+      return;
+    }
+
     const payload = new FormData();
     payload.append("nim", form.nim);
     payload.append("nama", form.nama);
@@ -106,7 +124,7 @@ export default function RegisterPage() {
               name="kelas"
               value={form.kelas}
               onChange={updateField}
-              placeholder="Kelas (e.g., 2p51 / 2p41 / etc)"
+              placeholder="Kelas"
             />
             <input
               className="input"
