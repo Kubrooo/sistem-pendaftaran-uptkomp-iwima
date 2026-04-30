@@ -40,10 +40,6 @@ export default function DashboardApplicant() {
             <div>
               <span className="font-semibold">Status:</span> {applicant.status}
             </div>
-            <div>
-              <span className="font-semibold">Catatan Admin:</span>
-              {applicant.catatanAdmin ? applicant.catatanAdmin : "-"}
-            </div>
             {applicant.status === "accepted" ? (
               <a
                 className="button-primary justify-self-start"

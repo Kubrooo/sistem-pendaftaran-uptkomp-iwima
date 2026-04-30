@@ -7,11 +7,11 @@ import {
   changePassword,
 } from "../controllers/auth.controller.js";
 import { authenticate } from "../middleware/auth.js";
-import { uploadPdf } from "../middleware/upload.js";
+import { uploadMultiplePdf } from "../middleware/upload.js";
 
 const router = Router();
 
-router.post("/register", uploadPdf.single("file_pdf"), registerApplicant);
+router.post("/register", uploadMultiplePdf, registerApplicant);
 router.post("/login", loginApplicant);
 router.post("/admin/login", loginAdmin);
 router.get("/me", authenticate, me);

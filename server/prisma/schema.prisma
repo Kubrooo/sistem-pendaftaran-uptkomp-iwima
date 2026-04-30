@@ -23,6 +23,8 @@ model User {
   nim       String    @unique
   nama      String
   password  String
+  kelas     String?
+  semester  Int?
   role      Role      @default(applicant)
   applicant Applicant?
   createdAt DateTime  @default(now()) @map("created_at")
@@ -34,7 +36,9 @@ model Applicant {
   id            Int             @id @default(autoincrement())
   userId        Int             @unique @map("user_id")
   motivasi      String          @db.Text
-  filePdf       String          @map("file_pdf")
+  fileTranskrip String          @map("file_transkip")
+  fileFoto      String          @map("file_foto")
+  fileFormulir  String          @map("file_formulir")
   status        ApplicantStatus @default(pending)
   catatanAdmin  String?         @db.Text @map("catatan_admin")
   deletedAt     DateTime?       @map("deleted_at")

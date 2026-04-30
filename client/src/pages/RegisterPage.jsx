@@ -4,8 +4,18 @@ import api from "../lib/api";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ nim: "", nama: "", motivasi: "" });
-  const [filePdf, setFilePdf] = useState(null);
+  const [form, setForm] = useState({
+    nim: "",
+    nama: "",
+    motivasi: "",
+    kelas: "",
+    semester: "",
+  });
+  const [files, setFiles] = useState({
+    file_transkip: null,
+    file_foto: null,
+    file_formulir: null,
+  });
   const [status, setStatus] = useState({ type: "", message: "" });
   const [loading, setLoading] = useState(false);
 
@@ -13,6 +23,14 @@ export default function RegisterPage() {
     setForm((current) => ({
       ...current,
       [event.target.name]: event.target.value,
+    }));
+  };
+
+  const updateFile = (event) => {
+    const { name } = event.target;
+    setFiles((current) => ({
+      ...current,
+      [name]: event.target.files?.[0] || null,
     }));
   };
 
@@ -25,7 +43,11 @@ export default function RegisterPage() {
     payload.append("nim", form.nim);
     payload.append("nama", form.nama);
     payload.append("motivasi", form.motivasi);
-    payload.append("file_pdf", filePdf);
+    payload.append("kelas", form.kelas);
+    payload.append("semester", form.semester);
+    payload.append("file_transkip", files.file_transkip);
+    payload.append("file_foto", files.file_foto);
+    payload.append("file_formulir", files.file_formulir);
 
     try {
       const response = await api.post("/register", payload, {
@@ -78,6 +100,24 @@ export default function RegisterPage() {
             placeholder="Nama Lengkap"
             required
           />
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              className="input"
+              name="kelas"
+              value={form.kelas}
+              onChange={updateField}
+              placeholder="Kelas (e.g., 2p51 / 2p41 / etc)"
+            />
+            <input
+              className="input"
+              name="semester"
+              value={form.semester}
+              onChange={updateField}
+              placeholder="Semester"
+              type="number"
+              min="1"
+            />
+          </div>
           <textarea
             className="input min-h-40"
             name="motivasi"
@@ -86,13 +126,48 @@ export default function RegisterPage() {
             placeholder="Motivasi bergabung"
             required
           />
-          <input
-            className="input"
-            type="file"
-            accept="application/pdf"
-            onChange={(event) => setFilePdf(event.target.files?.[0] || null)}
-            required
-          />
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                PDF Transkrip Nilai <span className="text-rose-600">*</span>
+              </label>
+              <input
+                className="input"
+                type="file"
+                name="file_transkip"
+                accept="application/pdf"
+                onChange={updateFile}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Pas Foto (PDF) <span className="text-rose-600">*</span>
+              </label>
+              <input
+                className="input"
+                type="file"
+                name="file_foto"
+                accept="application/pdf"
+                onChange={updateFile}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Formulir Pendaftaran (PDF){" "}
+                <span className="text-rose-600">*</span>
+              </label>
+              <input
+                className="input"
+                type="file"
+                name="file_formulir"
+                accept="application/pdf"
+                onChange={updateFile}
+                required
+              />
+            </div>
+          </div>
           <button className="button-primary" type="submit" disabled={loading}>
             {loading ? "Mengirim..." : "Kirim Pendaftaran"}
           </button>

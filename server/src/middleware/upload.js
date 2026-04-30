@@ -32,3 +32,13 @@ export const uploadPdf = multer({
   fileFilter,
   limits: { fileSize: 2 * 1024 * 1024 },
 });
+
+export const uploadMultiplePdf = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 },
+}).fields([
+  { name: "file_transkip", maxCount: 1 },
+  { name: "file_foto", maxCount: 1 },
+  { name: "file_formulir", maxCount: 1 },
+]);

@@ -7,8 +7,6 @@ export default function AdminDashboard() {
   const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10 });
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const [notes, setNotes] = useState({});
-  const [openNotes, setOpenNotes] = useState({});
 
   const load = async () => {
     try {
@@ -19,11 +17,6 @@ export default function AdminDashboard() {
       setItems(response.data.data);
       setMeta(response.data.meta);
       setStatus("");
-      const map = {};
-      response.data.data.forEach((i) => {
-        map[i.id] = i.applicant?.catatanAdmin || "";
-      });
-      setNotes(map);
     } catch (error) {
       setStatus(error.response?.data?.message || "Gagal memuat data");
     }
@@ -53,26 +46,6 @@ export default function AdminDashboard() {
         icon: "success",
         title: "Status diperbarui",
         timer: 1400,
-        showConfirmButton: false,
-      });
-      load();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal",
-        text: error.response?.data?.message || "Terjadi kesalahan",
-      });
-    }
-  };
-
-  const saveNote = async (id) => {
-    try {
-      const note = notes[id] ?? "";
-      await api.put(`/admin/applicants/${id}`, { catatanAdmin: note });
-      Swal.fire({
-        icon: "success",
-        title: "Catatan tersimpan",
-        timer: 1200,
         showConfirmButton: false,
       });
       load();
@@ -127,122 +100,108 @@ export default function AdminDashboard() {
                   <td className="px-4 py-3">{item.nama}</td>
                   <td className="px-4 py-3">{item.applicant?.status || "-"}</td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-col gap-2">
-                      <div className="flex gap-2">
-                        <button
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        className="button-secondary"
+                        onClick={() => updateStatus(item.id, "accepted")}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="button-secondary"
+                        onClick={() => updateStatus(item.id, "rejected")}
+                      >
+                        Reject
+                      </button>
+                      {item.applicant?.fileTranskrip ? (
+                        <a
                           className="button-secondary"
-                          onClick={() => updateStatus(item.id, "accepted")}
-                        >
-                          Accept
-                        </button>
-                        <button
-                          className="button-secondary"
-                          onClick={() => updateStatus(item.id, "rejected")}
-                        >
-                          Reject
-                        </button>
-                        <button
-                          className="button-ghost text-rose-600"
-                          onClick={async () => {
-                            const confirm = await Swal.fire({
-                              title: "Hapus pendaftar",
-                              text: "Aksi ini akan menghapus pendaftar (soft delete). Lanjutkan?",
-                              icon: "warning",
-                              showCancelButton: true,
-                              confirmButtonText: "Hapus",
-                            });
-
-                            if (!confirm.isConfirmed) return;
-
-                            try {
-                              await api.delete(`/admin/applicants/${item.id}`);
-                              Swal.fire({
-                                icon: "success",
-                                title: "Dihapus",
-                                timer: 1200,
-                                showConfirmButton: false,
-                              });
-                              load();
-                            } catch (err) {
-                              Swal.fire({
-                                icon: "error",
-                                title: "Gagal",
-                                text:
-                                  err.response?.data?.message ||
-                                  "Terjadi kesalahan",
-                              });
-                            }
-                          }}
-                        >
-                          Hapus
-                        </button>
-                        {item.applicant?.filePdf ? (
-                          <a
-                            className="button-secondary"
-                            href={
-                              (
-                                import.meta.env.VITE_API_URL ||
-                                "http://localhost:4000/api"
-                              ).replace(/\/api$/, "") +
-                              "/uploads/" +
-                              item.applicant.filePdf
-                            }
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            Lihat Dokumen
-                          </a>
-                        ) : null}
-                        <button
-                          className="button-secondary"
-                          onClick={() =>
-                            setOpenNotes((current) => ({
-                              ...current,
-                              [item.id]: !current[item.id],
-                            }))
+                          href={
+                            (
+                              import.meta.env.VITE_API_URL ||
+                              "http://localhost:4000/api"
+                            ).replace(/\/api$/, "") +
+                            "/uploads/" +
+                            item.applicant.fileTranskrip
                           }
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Transkrip Nilai"
                         >
-                          {openNotes[item.id] ? "Tutup Catatan" : "Catatan"}
-                        </button>
-                      </div>
-
-                      {openNotes[item.id] ? (
-                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                            Catatan Admin
-                          </p>
-                          <textarea
-                            value={notes[item.id] ?? ""}
-                            onChange={(e) =>
-                              setNotes((s) => ({
-                                ...s,
-                                [item.id]: e.target.value,
-                              }))
-                            }
-                            placeholder="Tambahkan catatan admin..."
-                            className="input mt-3 min-h-24 w-full resize-none"
-                          />
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <button
-                              className="button-primary"
-                              onClick={() => saveNote(item.id)}
-                            >
-                              Simpan Catatan
-                            </button>
-                            <button
-                              className="button-secondary"
-                              onClick={() =>
-                                setOpenNotes((current) => ({
-                                  ...current,
-                                  [item.id]: false,
-                                }))
-                              }
-                            >
-                              Sembunyikan
-                            </button>
-                          </div>
-                        </div>
+                          Transkrip
+                        </a>
                       ) : null}
+                      {item.applicant?.fileFoto ? (
+                        <a
+                          className="button-secondary"
+                          href={
+                            (
+                              import.meta.env.VITE_API_URL ||
+                              "http://localhost:4000/api"
+                            ).replace(/\/api$/, "") +
+                            "/uploads/" +
+                            item.applicant.fileFoto
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Pas Foto"
+                        >
+                          Foto
+                        </a>
+                      ) : null}
+                      {item.applicant?.fileFormulir ? (
+                        <a
+                          className="button-secondary"
+                          href={
+                            (
+                              import.meta.env.VITE_API_URL ||
+                              "http://localhost:4000/api"
+                            ).replace(/\/api$/, "") +
+                            "/uploads/" +
+                            item.applicant.fileFormulir
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Formulir Pendaftaran"
+                        >
+                          Formulir
+                        </a>
+                      ) : null}
+                      <button
+                        className="button-secondary text-rose-600"
+                        onClick={async () => {
+                          const confirm = await Swal.fire({
+                            title: "Hapus pendaftar",
+                            text: "Aksi ini akan menghapus pendaftar (soft delete). Lanjutkan?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonText: "Hapus",
+                          });
+
+                          if (!confirm.isConfirmed) return;
+
+                          try {
+                            await api.delete(`/admin/applicants/${item.id}`);
+                            Swal.fire({
+                              icon: "success",
+                              title: "Dihapus",
+                              timer: 1200,
+                              showConfirmButton: false,
+                            });
+                            load();
+                          } catch (err) {
+                            Swal.fire({
+                              icon: "error",
+                              title: "Gagal",
+                              text:
+                                err.response?.data?.message ||
+                                "Terjadi kesalahan",
+                            });
+                          }
+                        }}
+                      >
+                        Hapus
+                      </button>
                     </div>
                   </td>
                 </tr>

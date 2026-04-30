@@ -4,12 +4,22 @@ import { signToken } from "../utils/token.js";
 
 export const registerApplicant = async (req, res, next) => {
   try {
-    const { nim, nama, motivasi } = req.body;
+    const { nim, nama, motivasi, kelas, semester } = req.body;
 
-    if (!nim || !nama || !motivasi || !req.file) {
+    if (
+      !nim ||
+      !nama ||
+      !motivasi ||
+      !req.files?.file_transkip ||
+      !req.files?.file_foto ||
+      !req.files?.file_formulir
+    ) {
       return res
         .status(400)
-        .json({ message: "Data pendaftaran belum lengkap" });
+        .json({
+          message:
+            "Data pendaftaran belum lengkap (pastikan upload semua dokumen)",
+        });
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -26,10 +36,14 @@ export const registerApplicant = async (req, res, next) => {
             data: {
               nama,
               password,
+              kelas,
+              semester: semester ? parseInt(semester) : null,
               applicant: {
                 update: {
                   motivasi,
-                  filePdf: req.file.filename,
+                  fileTranskrip: req.files.file_transkip[0].filename,
+                  fileFoto: req.files.file_foto[0].filename,
+                  fileFormulir: req.files.file_formulir[0].filename,
                   status: "pending",
                   deletedAt: null,
                   catatanAdmin: null,
@@ -44,11 +58,15 @@ export const registerApplicant = async (req, res, next) => {
             nim,
             nama,
             password,
+            kelas,
+            semester: semester ? parseInt(semester) : null,
             role: "applicant",
             applicant: {
               create: {
                 motivasi,
-                filePdf: req.file.filename,
+                fileTranskrip: req.files.file_transkip[0].filename,
+                fileFoto: req.files.file_foto[0].filename,
+                fileFormulir: req.files.file_formulir[0].filename,
                 status: "pending",
               },
             },
